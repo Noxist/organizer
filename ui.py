@@ -9,7 +9,7 @@ No external CDN dependencies – all CSS inline.
 # Base layout
 # ---------------------------------------------------------------------------
 
-def _base(title: str, content: str, nav_active: str = "", homebox_url: str = "") -> str:
+def _base(title: str, content: str, nav_active: str = "") -> str:
     return f"""<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -120,7 +120,6 @@ hr {{ border: none; border-top: 1px solid var(--border); margin: 1rem 0; }}
   <a href="/scan" class="{'active' if nav_active == 'scan' else ''}">Scan</a>
   <a href="/containers" class="{'active' if nav_active == 'containers' else ''}">Container</a>
   <a href="/items" class="{'active' if nav_active == 'items' else ''}">Items</a>
-  {f'<a href="{homebox_url}" target="_blank" style="margin-left:auto;">🏠 HomeBox</a>' if homebox_url else ''}
 </nav>
 <div class="container">
 {content}
@@ -133,7 +132,7 @@ hr {{ border: none; border-top: 1px solid var(--border); margin: 1rem 0; }}
 # Dashboard
 # ---------------------------------------------------------------------------
 
-def dashboard_html(stats: dict, homebox_ok: bool, homebox_url: str = "") -> str:
+def dashboard_html(stats: dict, homebox_ok: bool) -> str:
     hb_status = '<span class="tag tag-green">Online</span>' if homebox_ok else '<span class="tag tag-red">Offline</span>'
     content = f"""
 <h2 style="margin-bottom:1rem;">Dashboard</h2>
@@ -162,14 +161,14 @@ def dashboard_html(stats: dict, homebox_ok: bool, homebox_url: str = "") -> str:
   </a>
 </div>
 """
-    return _base("Dashboard", content, "dashboard", homebox_url)
+    return _base("Dashboard", content, "dashboard")
 
 
 # ---------------------------------------------------------------------------
 # Scan page
 # ---------------------------------------------------------------------------
 
-def scan_html(openai_enabled: bool = False, homebox_url: str = "") -> str:
+def scan_html(openai_enabled: bool = False) -> str:
     ai_note = ""
     if openai_enabled:
         ai_note = '<p class="text-sm text-muted mb-1">✨ KI-Erkennung aktiv — Name und Tags werden vorgeschlagen.</p>'
@@ -363,14 +362,14 @@ zone.addEventListener('drop', (e) => {{
 }});
 </script>
 """
-    return _base("Scan", content, "scan", homebox_url)
+    return _base("Scan", content, "scan")
 
 
 # ---------------------------------------------------------------------------
 # Containers
 # ---------------------------------------------------------------------------
 
-def containers_html(containers: dict, slots: dict, homebox_url: str = "") -> str:
+def containers_html(containers: dict, slots: dict) -> str:
     cards = ""
     for cid, c in sorted(containers.items()):
         c_slots = {k: v for k, v in slots.items() if v["container_id"] == cid}
@@ -447,14 +446,14 @@ def containers_html(containers: dict, slots: dict, homebox_url: str = "") -> str
   </form>
 </div>
 """
-    return _base("Container", content, "containers", homebox_url)
+    return _base("Container", content, "containers")
 
 
 # ---------------------------------------------------------------------------
 # Items list
 # ---------------------------------------------------------------------------
 
-def items_html(items: dict, slots: dict, containers: dict, homebox_url: str = "") -> str:
+def items_html(items: dict, slots: dict, containers: dict) -> str:
     rows = ""
     for iid, item in sorted(items.items(), key=lambda x: x[1].get("created_at", ""), reverse=True):
         slot_id = item.get("slot_id", "UNPLACED")
@@ -507,4 +506,4 @@ def items_html(items: dict, slots: dict, containers: dict, homebox_url: str = ""
 {pack_section}
 {rows if rows else '<p class="text-muted">Noch keine Items registriert.</p>'}
 """
-    return _base("Items", content, "items", homebox_url)
+    return _base("Items", content, "items")
